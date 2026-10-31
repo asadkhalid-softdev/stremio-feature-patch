@@ -176,3 +176,8 @@ It leaves that larger batch open. These checks interact with the live app.
 Stremio's name and logo belong to their respective owners. The logo above is
 referenced from the official [Stremio brand repository](https://github.com/Stremio/stremio-brand).
 This project is independent and is not affiliated with or endorsed by Stremio.
+
+## License
+
+This project's code is available under the [MIT License](LICENSE).
+Stremio's name, logo, and other third-party assets are not covered by this license.
