@@ -1,0 +1,48 @@
+# Local screenshots and inspection artifacts
+/preview.png
+/screenshots/
+/output/
+/artifacts/
+codex-clipboard-*
+*.har
+*.saz
+
+# Runtime configuration, history, logs, and shortcut backups
+/backups/
+/shortcut-backups/
+/patch-backups/
+/StremioFilters/
+*.lnk
+*.log
+config.json
+Launch Stremio.ps1
+Restore original shortcuts.ps1
+*.WebView2/
+*.sqlite*
+*.db
+
+# Credentials and personal environment files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+id_rsa*
+id_ed25519*
+credentials*.json
+secrets*.json
+
+# Dependencies and development caches
+node_modules/
+coverage/
+__pycache__/
+*.py[cod]
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.tmp
+*.bak
