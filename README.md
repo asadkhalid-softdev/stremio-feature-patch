@@ -3,10 +3,11 @@
 </p>
 
 <h1 align="center">Stremio Feature Patch</h1>
-<p align="center">Filters, sorting, and predictable browsing for Stremio Discover on Windows.</p>
+<p align="center">Discover controls and real Library watched filters for Stremio on Windows.</p>
 
 An unofficial, local customization for the Stremio 5 desktop app. It adds a
-Discover toolbar without modifying Stremio's executable or your watched history.
+Discover toolbar and makes Library's Watched / Not Watched chips work as filters,
+without modifying Stremio's executable or your watched history.
 
 ## Features
 
@@ -21,8 +22,29 @@ Discover toolbar without modifying Stremio's executable or your watched history.
 | **Load 100 more** | Explicitly expands the batch, reapplies filters and sorting, and returns to the top. |
 | **Saved preferences** | Remembers year, IMDb range, sort mode, direction, and Hide watched locally across restarts. Preferences are shared across movies, series, and catalogs. |
 | **Repair and restore** | Automatically detects Stremio and Node.js, repairs shortcuts after updates, and backs up shortcuts for restoration. |
+| **Library watch filters** | Watched shows only ticked cards; Not Watched shows only unticked cards, independently of the Library sort. |
 
-### Missing metadata
+### Library filters
+
+In Library, **Watched** and **Not Watched** are mutually exclusive filters rather
+than Stremio's native sort modes. Use them alongside **Last Watched**, **A–Z**,
+**Z–A**, or **Most Watched**. Selecting a filter keeps the current normal sort;
+changing the sort keeps the filter. A **Filter** divider separates the two kinds
+of controls.
+
+Click the active filter again, or **Clear filter**, to show all titles. Filtering
+uses the same watched tick displayed on the cards; partially watched titles
+without a tick belong to Not Watched. The Library filter and normal sort are
+remembered locally, independently of Discover preferences.
+
+The counter reports matching versus loaded Library cards. Normal Library
+pagination continues while scrolling. If filtering removes the scrollbar, the
+patch asks Stremio for further pages until there is enough content to scroll or
+there are no more available pages. An old `sort=watched` or `sort=notwatched`
+Library link is converted to the equivalent filter with the last normal sort
+(Last Watched when no normal sort was saved). This does not mark or unmark titles.
+
+### Discover: missing metadata
 
 Each filter works independently:
 
@@ -74,7 +96,7 @@ TMDB, then Trakt popularity field. Scores and availability vary by add-on.
 
 2. Double-click **Apply patch.cmd**. Keep the `payload` folder beside it.
 3. Fully exit Stremio, including its system tray icon.
-4. Open Stremio using a patched Desktop or Start menu shortcut, then open Discover.
+4. Open Stremio using a patched Desktop or Start menu shortcut, then open Discover or Library.
 
 The installer detects Stremio from running processes, shortcuts, Windows install
 records, prior patch configuration, and standard install locations. It detects
@@ -128,7 +150,7 @@ can recreate its original shortcuts.
 
 The installer changes shortcuts to launch a hidden local Node.js helper. The
 helper starts the original Stremio executable, connects to its WebView through
-loopback debugging, and adds the Discover toolbar. It reads catalog responses
+loopback debugging, and adds the Discover toolbar and Library filters. It reads catalog responses
 and watched ticks; catalog data can also be recovered from the page's selected
 catalog when attaching after it has loaded.
 
@@ -154,7 +176,8 @@ No dependency installation is needed:
 ```bat
 node --check payload\hide-watched.js
 node --check payload\launcher.cjs
-node --test tests\filter-engine.test.cjs
+node --check payload\library-filters.js
+node --test tests\filter-engine.test.cjs tests\library-filters.test.cjs
 ```
 
 Optional integration checks require Stremio running through the patched launcher
@@ -170,6 +193,10 @@ filter settings afterward, and writes a local `preview.png` that Git ignores.
 `live-batch.cjs` requires a fresh, paginated Cinemeta catalog with at least 100
 available titles; it verifies stable scrolling and explicitly expands to 200.
 It leaves that larger batch open. These checks interact with the live app.
+
+With Library open, run `node tests\live-library.cjs` to check both watched
+filters, independent sorting, clearing, keyboard activation, saved preferences,
+and unchanged watched indicators. It restores the previous filter and sort.
 
 ## Attribution
 

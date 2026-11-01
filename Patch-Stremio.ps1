@@ -85,7 +85,7 @@ try {
         if ($LASTEXITCODE -eq 0) { $node=$candidate; break }
     }
     if (!$node) { throw 'A compatible Node.js runtime was not found. Install Node.js 22 or newer, then run this tool again.' }
-    foreach ($name in @('hide-watched.js','launcher.cjs')) {
+    foreach ($name in @('hide-watched.js','library-filters.js','launcher.cjs')) {
         $payload = Join-Path $PSScriptRoot "payload\$name"
         if (!(Test-Path -LiteralPath $payload)) { throw "Missing payload: $payload. Keep the patch folder together." }
         & $node --check $payload
@@ -116,7 +116,7 @@ try {
     }
     ConvertTo-Json -InputObject @($manifest) | Set-Content -LiteralPath $manifestPath -Encoding UTF8
     Stop-FilterHelper
-    foreach ($name in @('hide-watched.js','launcher.cjs')) {
+    foreach ($name in @('hide-watched.js','library-filters.js','launcher.cjs')) {
         Copy-Item -LiteralPath (Join-Path $PSScriptRoot "payload\$name") -Destination (Join-Path $installDir $name) -Force
     }
     @{stremioExe=$exe; nodeExe=$node} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $installDir 'config.json') -Encoding UTF8
@@ -129,7 +129,7 @@ try {
         $link.Arguments='-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $installDir 'Launch Stremio.ps1') + '"'
         $link.WorkingDirectory=$installDir
         $link.IconLocation="$exe,0"
-        $link.Description='Stremio with Discover filters and sorting'
+        $link.Description='Stremio with Discover controls and Library watched filters'
         $link.Save()
         Write-Host "Updated shortcut: $shortcutPath"
     }
