@@ -8,7 +8,7 @@ const base = __dirname;
 const config = JSON.parse(fs.readFileSync(path.join(base, 'config.json'), 'utf8').replace(/^\uFEFF/, ''));
 const exe = config.stremioExe;
 const endpoint = 'http://127.0.0.1:19247';
-const source = ['hide-watched.js','library-filters.js'].map(name=>fs.readFileSync(path.join(base,name),'utf8')).join('\n');
+const source = ['hide-watched.js','library-filters.js','local-subtitles.js'].map(name=>fs.readFileSync(path.join(base,name),'utf8')).join('\n');
 const lock = net.createServer();
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const log = e => fs.appendFileSync(path.join(base, 'launcher.log'), new Date().toISOString()+' '+String(e)+'\n');

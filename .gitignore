@@ -6,6 +6,10 @@
 codex-clipboard-*
 *.har
 *.saz
+# User-supplied subtitle files must not enter the public repository.
+*.srt
+*.ass
+*.vtt
 
 # Runtime configuration, history, logs, and shortcut backups
 /backups/

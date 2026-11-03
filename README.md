@@ -3,10 +3,11 @@
 </p>
 
 <h1 align="center">Stremio Feature Patch</h1>
-<p align="center">Discover controls and real Library watched filters for Stremio on Windows.</p>
+<p align="center">Discover controls, Library watched filters, and local SRT loading for Stremio on Windows.</p>
 
 An unofficial, local customization for the Stremio 5 desktop app. It adds a
-Discover toolbar and makes Library's Watched / Not Watched chips work as filters,
+Discover toolbar, makes Library's Watched / Not Watched chips work as filters,
+and adds a local SRT file picker to the player subtitle menu,
 without modifying Stremio's executable or your watched history.
 
 ## Features
@@ -23,6 +24,30 @@ without modifying Stremio's executable or your watched history.
 | **Saved preferences** | Remembers year, IMDb range, sort mode, direction, and Hide watched locally across restarts. Preferences are shared across movies, series, and catalogs. |
 | **Repair and restore** | Automatically detects Stremio and Node.js, repairs shortcuts after updates, and backs up shortcuts for restoration. |
 | **Library watch filters** | Watched shows only ticked cards; Not Watched shows only unticked cards, independently of the Library sort. |
+| **Local SRT subtitles** | Load a `.srt` file from the subtitle menu and use Stremio's existing Delay, Size, and Vertical Position controls. |
+
+### Local SRT subtitles
+
+While a video is open in Stremio's built-in player:
+
+1. Open the **subtitles** menu from the player controls.
+2. In the **Subtitles Settings** column, click **Load .srt file**.
+3. Choose an SRT file. Stremio loads and selects it as a **Local** subtitle track.
+4. Use the existing **Delay − / +** controls to adjust synchronization. The Size
+   and Vertical Position controls apply through the same native subtitle system.
+
+You can return to an embedded or add-on subtitle using the normal menu, or choose
+OFF to disable subtitles. A new upload preserves an existing numeric subtitle
+delay. The button accepts non-empty `.srt` files up to 10 MB and checks for valid
+timing cues before replacing the active track. Decoding and rendering use
+Stremio's local subtitle loader; the original file bytes are passed unchanged.
+
+The patch reads the file locally; it does not upload it to this project's author
+or copy it into the repository. Loaded files are for the current playback
+session. Select the file again after restarting or changing videos. Local loading
+is unavailable when the active player does not expose Stremio's local subtitle
+API, such as an external playback implementation. This feature adds a file picker
+to the local subtitle support that Stremio already uses for drag-and-drop.
 
 ### Library filters
 
@@ -96,7 +121,8 @@ TMDB, then Trakt popularity field. Scores and availability vary by add-on.
 
 2. Double-click **Apply patch.cmd**. Keep the `payload` folder beside it.
 3. Fully exit Stremio, including its system tray icon.
-4. Open Stremio using a patched Desktop or Start menu shortcut, then open Discover or Library.
+4. Open Stremio using a patched Desktop or Start menu shortcut. The new controls
+   appear in Discover, Library, and the player's subtitle menu.
 
 The installer detects Stremio from running processes, shortcuts, Windows install
 records, prior patch configuration, and standard install locations. It detects
@@ -132,7 +158,8 @@ Run **Apply patch.cmd** again, then fully exit and reopen Stremio. This repairs
 missing patch files, changed install paths, and overwritten shortcuts.
 
 The web interface can change independently of the desktop app. This patch depends
-on Stremio's current DOM, React catalog structure, and pagination behavior.
+on Stremio's current DOM, React catalog/player structure, native subtitle API,
+and pagination behavior.
 Reapplying unchanged code cannot repair an incompatible upstream change; the
 payload may need updating.
 
@@ -150,7 +177,8 @@ can recreate its original shortcuts.
 
 The installer changes shortcuts to launch a hidden local Node.js helper. The
 helper starts the original Stremio executable, connects to its WebView through
-loopback debugging, and adds the Discover toolbar and Library filters. It reads catalog responses
+loopback debugging, and adds the Discover toolbar, Library filters, and local
+subtitle picker. It reads catalog responses
 and watched ticks; catalog data can also be recovered from the page's selected
 catalog when attaching after it has loaded.
 
@@ -166,7 +194,7 @@ recovery and pagination requests.
   **127.0.0.1:19248** to prevent duplicate helpers. These listeners are local,
   and debugging provides access to the WebView; do not expose or forward them.
 - Runtime errors, if any, are written to `launcher.log` in the installed folder.
-- This repository excludes local configuration, logs, backups, shortcuts,
+- This repository excludes local configuration, logs, backups, shortcuts, subtitle files,
   screenshots, environment files, and common credential files through `.gitignore`.
 
 ## Development and tests
@@ -177,7 +205,8 @@ No dependency installation is needed:
 node --check payload\hide-watched.js
 node --check payload\launcher.cjs
 node --check payload\library-filters.js
-node --test tests\filter-engine.test.cjs tests\library-filters.test.cjs
+node --check payload\local-subtitles.js
+node --test tests\filter-engine.test.cjs tests\library-filters.test.cjs tests\local-subtitles.test.cjs
 ```
 
 Optional integration checks require Stremio running through the patched launcher
@@ -197,6 +226,13 @@ It leaves that larger batch open. These checks interact with the live app.
 With Library open, run `node tests\live-library.cjs` to check both watched
 filters, independent sorting, clearing, keyboard activation, saved preferences,
 and unchanged watched indicators. It restores the previous filter and sort.
+
+With a video paused and its subtitle menu open, run `node tests\live-subtitles.cjs`
+to import a generated temporary SRT through the real file chooser and verify the
+native Delay buttons. It restores your original subtitle selection and checks
+that playback stayed paused at the same position. Stremio may keep the unselected
+test track in its Local list until you close the current video. The test deletes
+the temporary file afterward and does not read any of your subtitle files.
 
 ## Attribution
 
