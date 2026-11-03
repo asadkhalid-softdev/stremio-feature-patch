@@ -15,6 +15,7 @@ without modifying Stremio's executable or your watched history.
 | Control | Behavior |
 | --- | --- |
 | **Hide watched** | Hides titles carrying Stremio's watched tick. |
+| **Discover metadata badges** | Shows the release year and IMDb rating in a centered row below each title when available. Missing values are omitted; series use their premiere year. Badges use the same metadata snapshot as filtering and sorting, without additional requests. |
 | **Release year** | Accepts four digits. Press Enter or click outside to apply. Clear it to remove the filter. Series use their premiere year. |
 | **IMDb range** | Two slider handles select an inclusive 0.0–10.0 range in steps of 0.1. Handles support keyboard arrows and cannot cross. |
 | **Sort by** | Default catalog order, Release year, IMDb rating, or Popularity. |

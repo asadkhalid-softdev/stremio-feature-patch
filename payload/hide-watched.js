@@ -1,6 +1,6 @@
 (function bootstrap() {
   'use strict';
-  const VERSION = '2.1.4';
+  const VERSION = '2.2.1';
   function number(value) {
     if (value == null || (typeof value === 'string' && !value.trim())) return null;
     const n = Number(value);
@@ -193,6 +193,9 @@
   style.textContent = `
     ${ROOT} [data-discover-hidden="true"] { display:none !important; }
     ${ROOT} [data-discover-preloading="true"] { visibility:hidden; }
+    .sfp-poster-badges { display:flex; flex-wrap:wrap; justify-content:center; gap:6px; margin:0 0 8px; pointer-events:none; }
+    .sfp-poster-badge { padding:4px 6px; border:1px solid rgba(255,255,255,.2); border-radius:6px; background:rgba(15,12,27,.9); color:#fff; font:600 12px/1.2 sans-serif; font-variant-numeric:tabular-nums; box-shadow:0 1px 4px rgba(0,0,0,.35); }
+    .sfp-poster-rating { color:#f5d575; }
     ${ROOT} [class*="selectable-inputs-container-"]:has(.sfp-toolbar) { flex-wrap:wrap; height:auto !important; padding-bottom:16px; row-gap:12px; }
     .sfp-toolbar { flex:1 0 100%; display:flex; align-items:center; flex-wrap:wrap; gap:12px; color:#fff; font:inherit; min-width:0; }
     .sfp-toolbar * { box-sizing:border-box; }
@@ -297,6 +300,24 @@
     const index=rawIndex!==null&&rawIndex!==undefined&&Number.isFinite(Number(rawIndex))?Number(rawIndex):initialIndices.get(card);
     return {card,key,index,meta:cache.get(key)||metadata(),watched:!!card.querySelector(WATCHED),known:cache.has(key)};
   }
+  function updateBadges(card, meta) {
+    const title=card.querySelector('[class*="title-bar-container-"]');
+    if(!title)return;
+    let badges=card.querySelector('.sfp-poster-badges');
+    if(meta.year===null&&meta.rating===null){badges?.remove();return;}
+    if(!badges){badges=document.createElement('div');badges.className='sfp-poster-badges';}
+    if(title.nextElementSibling!==badges)title.after(badges);
+    for(const [key,value,label] of [
+      ['year',meta.year===null?null:String(meta.year),'Release year'],
+      ['rating',meta.rating===null?null:`IMDb ${meta.rating.toFixed(1)}`,'IMDb rating']
+    ]) {
+      let badge=badges.querySelector(`.sfp-poster-${key}`);
+      if(value===null){badge?.remove();continue;}
+      if(!badge){badge=document.createElement('span');badge.className=`sfp-poster-badge sfp-poster-${key}`;badges.append(badge);}
+      if(badge.textContent!==value)badge.textContent=value;
+      badge.setAttribute('aria-label',key==='rating'?`${label}: ${meta.rating.toFixed(1)} out of 10`:`${label}: ${value}`);
+    }
+  }
   function update() {
     frame=0;
     if(disposed)return;
@@ -339,6 +360,8 @@
         }
         rows.sort((a,b)=>compare(a,b,state));
         for(const [rank,row] of rows.entries()) {
+          // Show the same metadata snapshot used for this batch's filters and sort.
+          updateBadges(row.card,row.meta);
           const visible=batch?.loading||admitted.has(row.card)&&matches(row.meta,state,row.watched);
           if(!visible && row.card.contains(document.activeElement))document.activeElement.blur();
           row.card.dataset.discoverHidden=String(!visible);
@@ -367,6 +390,7 @@
       window.removeEventListener('hashchange',schedule);window.removeEventListener('storage',onStorage);
       if(window.fetch===wrappedFetch)window.fetch=originalFetch;
       style.remove();document.querySelectorAll('.sfp-toolbar').forEach(e=>e.remove());
+      document.querySelectorAll('.sfp-poster-badges').forEach(e=>e.remove());
       document.querySelectorAll('[data-discover-hidden]').forEach(e=>{e.removeAttribute('data-discover-hidden');e.style.removeProperty('order');});
       document.querySelectorAll('[data-discover-preloading]').forEach(e=>e.removeAttribute('data-discover-preloading'));
       delete window.__stremioDiscoverPatch;
