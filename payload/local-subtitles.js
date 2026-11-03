@@ -1,6 +1,6 @@
 (function bootstrapLocalSubtitles() {
   'use strict';
-  const VERSION='1.0.1',MAX_BYTES=10*1024*1024;
+  const VERSION='1.0.2',MAX_BYTES=10*1024*1024;
   function validateFileInfo(name,size) {
     if(typeof name!=='string'||!/\.srt$/i.test(name))throw new Error('Choose a .srt subtitle file.');
     if(!Number.isFinite(size)||size<=0)throw new Error('The subtitle file is empty.');
@@ -36,7 +36,7 @@
   const style=document.createElement('style');style.id='local-subtitle-picker-style';
   style.textContent=`
     .ssp-local-subtitles{margin:0 0 14px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.12);}
-    .ssp-load-subtitles{width:100%;min-height:38px;padding:8px 12px;border:1px solid #8e6aca;border-radius:20px;background:rgba(130,86,255,.17);color:#fff;font:inherit;font-size:14px;cursor:pointer;}
+    .ssp-load-subtitles{width:auto;max-width:100%;min-height:38px;padding:8px 12px;border:1px solid #8e6aca;border-radius:20px;background:rgba(130,86,255,.17);color:#fff;font:inherit;font-size:14px;cursor:pointer;}
     .ssp-load-subtitles:hover:enabled{background:rgba(130,86,255,.3);}
     .ssp-load-subtitles:focus-visible{outline:2px solid #c6b0ff;outline-offset:3px;}
     .ssp-load-subtitles:disabled{opacity:.55;cursor:wait;}
